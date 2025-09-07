@@ -3,6 +3,8 @@
     <fullName>All</fullName>
     <columns>NAME</columns>
     <columns>Project_Key__c</columns>
+    <columns>Issue_Key__c</columns>
+    <columns>Issue_Type__c</columns>
     <columns>Summary__c</columns>
     <columns>Status__c</columns>
     <columns>CREATEDBY_USER</columns>
