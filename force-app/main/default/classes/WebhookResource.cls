@@ -75,4 +75,4 @@ global without sharing class WebhookResource {
             this.message = message;
         }
     }
-} 
+}

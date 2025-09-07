@@ -249,4 +249,4 @@ public without sharing class JiraWebhookProcessor implements IWebhookProcessor {
         // TODO: Implement project record update logic
         return existingProject;
     }
-} 
+}

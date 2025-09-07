@@ -47,4 +47,4 @@ public with sharing class WebhookFactory {
      * @description Custom exception for webhook processing errors
      */
     public class WebhookException extends Exception {}
-} 
+}

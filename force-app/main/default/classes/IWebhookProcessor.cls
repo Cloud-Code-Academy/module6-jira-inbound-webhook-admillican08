@@ -17,4 +17,4 @@ public interface IWebhookProcessor {
      * @param request The REST request containing the webhook payload
      */
     void process(RestRequest request);
-} 
+}

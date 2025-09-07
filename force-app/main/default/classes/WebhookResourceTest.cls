@@ -291,4 +291,4 @@ private class WebhookResourceTest {
         // Assert the response
         Assert.areEqual('error', response.status, 'Response status should be error');
     }
-} 
+}
