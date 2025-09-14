@@ -34,7 +34,7 @@ public with sharing class JiraTriggerHelper {
             project.Project_Key__c,
             project.Description__c
                 );
-            if(Limits.getLimitQueueableJobs() > Limits.getQueueableJobs() && !Test.isRunningTest()){
+            if((Limits.getQueueableJobs() < Limits.getLimitQueueableJobs()) && !Test.isRunningTest()){
                 System.enqueueJob(callout);
             }
         }
@@ -67,7 +67,7 @@ public with sharing class JiraTriggerHelper {
             issue.Description__c,
             issue.Issue_Type__c
                 );
-            if(Limits.getLimitQueueableJobs() > Limits.getQueueableJobs() && !Test.isRunningTest()){
+            if((Limits.getQueueableJobs() < Limits.getLimitQueueableJobs()) && !Test.isRunningTest()){
                 System.enqueueJob(callout);
             }
         }
@@ -125,7 +125,7 @@ public with sharing class JiraTriggerHelper {
      * @return Boolean True if the key is valid, false otherwise
      */
     private static Boolean isKeyValid(String projectKey){
-        Boolean len = projectKey.length() == 10;
+        Boolean len = projectKey.length() > 3;
         if (!len) {
             return false;
         }
@@ -133,10 +133,10 @@ public with sharing class JiraTriggerHelper {
             String[] chars = projectKey.split('');
             for(Integer i=0; i<chars.size(); i++){
                 String single = chars[i];
-                if(!single.isAlphanumeric() || !(single=='_')){
+                if (!(single.isAlphanumeric()) && !(single=='_')){
                     return false;
                 }
-                else if(!single.isNumeric() && !(single=='_') && single.isAlpha() && !single.isAllUpperCase()){
+                else if (!(single.isNumeric()) && !(single=='_') && !(single.isAlpha() && single.isAllUpperCase())){
                     return false;
                 }
             }

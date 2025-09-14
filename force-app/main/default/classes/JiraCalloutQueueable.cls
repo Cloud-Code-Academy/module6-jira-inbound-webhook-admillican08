@@ -1,7 +1,7 @@
 /**
  * Queueable class to make asynchronous callouts to Jira API
  */
-public class JiraCalloutQueueable implements Queueable, Database.AllowsCallouts {
+public with sharing class JiraCalloutQueueable implements Queueable, Database.AllowsCallouts {
     // Simple constants instead of enum
     public static final String TYPE_PROJECT = 'PROJECT';
     public static final String TYPE_ISSUE = 'ISSUE';
@@ -73,11 +73,15 @@ public class JiraCalloutQueueable implements Queueable, Database.AllowsCallouts 
                 String jiraIssueKey = JiraAPIService.createIssue(this.issueWrapper);
                 // Update Salesforce record with Jira issue key
                 updateJiraIssue(jiraIssueKey);
+            } else {
+                Logger.debug('Invalid callout type: ' + this.calloutType);
+                Logger.saveLog();
+                throw new JiraProcessingException('Invalid callout type: ' + this.calloutType);
             }
         } catch (Exception ex) {
-            Logger.debug('Error in JiraCalloutQueueable.execute(): ' + ex.getMessage() + '; ' + ex.getStackTraceString());
+            Logger.debug('Error in executing Jira Queueable: ' + ex.getMessage() + '; ' + ex.getStackTraceString());
             Logger.saveLog();
-            throw new JiraProcessingException(ex.getMessage());
+            throw new JiraProcessingException('Error in executing Jira Queueable: ' + ex.getMessage());
         }
     }
     
@@ -94,18 +98,16 @@ public class JiraCalloutQueueable implements Queueable, Database.AllowsCallouts 
                     Id = this.recordId,
                 Project_ID__c = jiraProjectId
                     );
-                update project;
-                Logger.debug('Successfully updated Jira Project: ' + jiraProjectId);
-                Logger.saveLog();
+                update as user project;
             } catch (Exception ex) {
                 Logger.debug('Error updating Jira Project: ' + ex.getMessage() + '; ' + ex.getStackTraceString());
                 Logger.saveLog();
-                throw new JiraProcessingException(ex.getMessage());
+                throw new JiraProcessingException('Error updating Jira Project: ' + ex.getMessage());
             }
-        }      else {
-            
-            Logger.debug('Could not update Jira Project');
+        } else {
+            Logger.debug('No valid Project Id supplied to JiraQueueable by JiraApiService');
             Logger.saveLog();
+            throw new JiraProcessingException('No valid Project Id supplied to JiraQueueable by JiraApiService');
         }
     }
     
@@ -124,17 +126,16 @@ public class JiraCalloutQueueable implements Queueable, Database.AllowsCallouts 
                 Issue_Key__c = jiraIssueKey,
                 Last_Updated__c = DateTime.now()
                     );
-                update issue;
-                Logger.debug('Successfully updated Jira Issue: ' + jiraIssueKey);
-                Logger.saveLog();
+                update as user issue;
             } catch (Exception ex) {
                 Logger.debug('Error updating Jira Issue: ' + ex.getMessage() + '; ' + ex.getStackTraceString());
                 Logger.saveLog();
-                throw ex;
+                throw new JiraProcessingException('Error updating Jira Issue: ' + ex.getMessage());
             }
         } else {
-            Logger.debug('Could not update Jira Issue');
+            Logger.debug('No valid Issue Key supplied to JiraQueueable by JiraApiService');
             Logger.saveLog();
+            throw new JiraProcessingException('No valid Issue Key supplied to JiraQueueable by JiraApiService');
         }
     }
 }
