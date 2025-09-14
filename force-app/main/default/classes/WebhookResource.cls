@@ -7,7 +7,7 @@
  *
  * IMPORTANT NOTE: without sharing is used to avoid sharing issues with the Jira_Issue__c and Jira_Project__c objects but it is not a good practice
  *
- * @author Student Name
+ * @author Adrienne Millican
  */
 @RestResource(urlMapping='/webhook/*')
 global without sharing class WebhookResource {
