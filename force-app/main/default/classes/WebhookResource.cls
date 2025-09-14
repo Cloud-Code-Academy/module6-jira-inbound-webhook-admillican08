@@ -1,13 +1,13 @@
 /**
  * @description REST resource to handle incoming webhooks from various systems
  * Current implementation supports Jira webhooks at /webhook/jira
- * 
+ *
  * STUDENT TASK:
  * Complete the doPost method implementation to process incoming webhooks
- * 
+ *
  * IMPORTANT NOTE: without sharing is used to avoid sharing issues with the Jira_Issue__c and Jira_Project__c objects but it is not a good practice
- * 
- * @author Student Name
+ *
+ * @author Adrienne Millican
  */
 @RestResource(urlMapping='/webhook/*')
 global without sharing class WebhookResource {
@@ -15,7 +15,7 @@ global without sharing class WebhookResource {
     /**
      * @description Handles POST requests from webhooks
      * @return Returns a simple success response
-     * 
+     *
      * STUDENT TASK:
      * Implement this method to:
      * 1. Get the REST request and response objects
@@ -26,8 +26,33 @@ global without sharing class WebhookResource {
      */
     @HttpPost
     global static ResponseWrapper doPost() {
-        // TODO: Implement webhook processing logic
-        return new ResponseWrapper('error', 'Method not implemented');
+        try {
+            RestRequest request = RestContext.request;
+            RestResponse response = RestContext.response;
+            
+            String webhookType = getWebhookTypeFromPath(request.requestURI);
+            
+            if (String.isBlank(webhookType)) {
+                response.statusCode = 400;
+                return new ResponseWrapper('error', 'Invalid webhook type');
+            }
+            
+            WebhookFactory.processWebhook(webhookType, request);
+            
+            response.statusCode = 200;
+            return new ResponseWrapper('success', 'Webhook processed successfully');
+            
+        } catch (WebhookFactory.WebhookException we) {
+            RestContext.response.statusCode = 400;
+            Logger.debug('Webhook processing error: ' + we.getMessage() + '; ' + we.getStackTraceString());
+            Logger.saveLog();
+            return new ResponseWrapper('error', 'Webhook processing failed: ' + we.getMessage());
+        } catch (Exception ex) {
+            RestContext.response.statusCode = 500;
+            Logger.debug('Unexpected error in webhook processing: ' + ex.getMessage() + '; ' + ex.getStackTraceString());
+            Logger.saveLog();
+            return new ResponseWrapper('error', 'Internal server error');
+        }
     }
     
     /**
@@ -36,24 +61,17 @@ global without sharing class WebhookResource {
      * @return The webhook type (e.g., "jira")
      */
     private static String getWebhookTypeFromPath(String path) {
-        System.debug('getWebhookTypeFromPath: ' + path);
-        // Expected formats: /webhook/jira or /services/apexrest/webhook/jira
         if (path == null) {
             return '';
         }
         
-        // Look for the webhook segment in the path
         Integer webhookIndex = path.indexOf('/webhook/');
         
         if (webhookIndex >= 0) {
-            // Extract the part after /webhook/
             String remaining = path.substring(webhookIndex + 9);
-            System.debug('remaining: ' + remaining);
             
-            // If there are additional slashes, only take the first segment
             Integer nextSlash = remaining.indexOf('/');
             if (nextSlash > 0) {
-                System.debug('nextSlash: ' + nextSlash);
                 return remaining.substring(0, nextSlash).toLowerCase();
             }
             
@@ -75,4 +93,4 @@ global without sharing class WebhookResource {
             this.message = message;
         }
     }
-} 
+}

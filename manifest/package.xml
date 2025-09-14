@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+    <members>Jira</members>
+    <name>CustomApplication</name>
+  </types>
+     <types>
+      <members>Jira_Project_Record_Page</members>
+    <members>Jira_UtilityBar</members>
+    <name>FlexiPage</name>
+  </types>
+    <types>
+    <members>Create_Jira_Project</members>
+    <name>QuickAction</name>
+  </types>
+<types>
+     <members>Global-Global Layout</members>
+    <members>Jira_Issue__c-Jira Issue Layout</members>
+    <members>Jira_Project__c-Jira Project Layout</members>
+    <name>Layout</name>
+  </types>
+    <version>64.0</version>
+</Package>
